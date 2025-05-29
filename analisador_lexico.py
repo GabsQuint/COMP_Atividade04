@@ -37,6 +37,7 @@ PADROES = [
     (r'\)', "PARFE"),
     (r';', ";"),
     (r'\w+', "ID"),
+    (r':', "DOISPONTOS"),
 ]
 
 # Função auxiliar para verificar se é palavra reservada
@@ -85,5 +86,4 @@ def analisador_lexico(caminho_entrada, caminho_saida):
 
     print("Tokens gerados com sucesso em:", caminho_saida)
 
-# Exemplo de execução:
-# analisador_lexico("exemplo.POR", "saida.TEM")
+

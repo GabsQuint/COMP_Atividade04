@@ -43,10 +43,26 @@ class Parser:
             return False
 
     def declaracao_variavel(self):
-        return self.consumir("TIPO") and self.consumir("ID") and self.consumir(";")
+        self.consumir("TIPO")
+        if self.atual()[0] == "DOISPONTOS":
+            self.consumir("DOISPONTOS")
+        if not self.consumir("ID"):
+            return False
+        if self.atual()[0] == ";":
+            self.consumir(";")
+        else:
+            print("Aviso: ponto e vírgula ausente após declaração.")
+        return True
 
     def atribuicao(self):
-        return self.consumir("ID") and self.consumir("ATR") and self.expressao() and self.consumir(";")
+        self.consumir("ID")
+        self.consumir("ATR")
+        self.expressao()
+        if self.atual()[0] == ";":
+            self.consumir(";")
+        else:
+            print("Aviso: ponto e vírgula ausente após atribuição.")
+        return True
 
     def expressao(self):
         token = self.atual()[0]
@@ -64,53 +80,56 @@ class Parser:
             return False
 
     def cmd_leia(self):
-        return self.consumir("LEIA") and self.consumir("PARAB") and self.consumir("ID") and self.consumir("PARFE") and self.consumir(";")
+        self.consumir("LEIA")
+        self.consumir("PARAB")
+        self.consumir("ID")
+        self.consumir("PARFE")
+        if self.atual()[0] == ";":
+            self.consumir(";")
+        else:
+            print("Aviso: ponto e vírgula ausente após leia.")
+        return True
 
     def cmd_escreva(self):
-        if not self.consumir("ESCREVA") or not self.consumir("PARAB"):
-            return False
+        self.consumir("ESCREVA")
+        self.consumir("PARAB")
         if self.atual()[0] in ["ID", "NUMINT", "STRING"]:
             self.pos += 1
         else:
             self.erros.append("Argumento inválido para escreva")
             return False
-        return self.consumir("PARFE") and self.consumir(";")
+        self.consumir("PARFE")
+        if self.atual()[0] == ";":
+            self.consumir(";")
+        else:
+            print("Aviso: ponto e vírgula ausente após escreva.")
+        return True
 
     def cmd_se(self):
-        if not self.consumir("SE"):
-            return False
-        if not self.expressao_logica():
-            return False
-        if not self.consumir("ENTAO"):
-            return False
+        self.consumir("SE")
+        self.expressao_logica()
+        self.consumir("ENTAO")
         while self.atual()[0] not in ["SENAO", "FIMSE", "EOF"]:
-            if not self.comando():
-                return False
+            self.comando()
         if self.atual()[0] == "SENAO":
             self.consumir("SENAO")
             while self.atual()[0] != "FIMSE":
-                if not self.comando():
-                    return False
-        return self.consumir("FIMSE")
+                self.comando()
+        self.consumir("FIMSE")
+        return True
 
     def cmd_para(self):
-        return (
-            self.consumir("PARA") and
-            self.atribuicao() and
-            self.consumir("ATE") and
-            self.expressao() and
-            (self.consumir("PASSO") and self.expressao() if self.atual()[0] == "PASSO" else True) and
-            self.lista_comandos("FIMPARA")
-        )
-
-    def lista_comandos(self, fim_token):
-        while self.atual()[0] != fim_token:
-            if self.atual()[0] == "EOF":
-                self.erros.append(f"Esperado {fim_token}, mas chegou ao final do arquivo.")
-                return False
-            if not self.comando():
-                return False
-        return self.consumir(fim_token)
+        self.consumir("PARA")
+        self.atribuicao()
+        self.consumir("ATE")
+        self.expressao()
+        if self.atual()[0] == "PASSO":
+            self.consumir("PASSO")
+            self.expressao()
+        while self.atual()[0] != "FIMPARA":
+            self.comando()
+        self.consumir("FIMPARA")
+        return True
 
     def expressao_logica(self):
         if self.atual()[0] in ["ID", "NUMINT"]:

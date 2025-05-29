@@ -3,7 +3,7 @@ from analisador_sintatico import Parser
 from analisador_semantico import AnalisadorSemantico
 import csv
 
-ARQ_ENTRADA = "exemplo.POR"
+ARQ_ENTRADA = "TESTE_SEM_ERRO.POR"
 ARQ_TOKENS = "saida.TEM"
 ARQ_CSV = "saida.csv"
 
